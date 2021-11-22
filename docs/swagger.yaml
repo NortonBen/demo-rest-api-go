@@ -1,0 +1,326 @@
+definitions:
+  common.Result:
+    properties:
+      code:
+        type: integer
+      document: {}
+      message:
+        type: string
+    type: object
+  model.Login:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.LoginResult:
+    properties:
+      access_token:
+        type: string
+    type: object
+  model.Permission:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  model.Records:
+    properties:
+      limit:
+        type: integer
+      records: {}
+      skip:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.UserCreate:
+    properties:
+      address:
+        type: string
+      department_id:
+        type: integer
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+      phone:
+        type: string
+      username:
+        type: string
+    required:
+    - department_id
+    - email
+    - first_name
+    - last_name
+    - password
+    - permissions
+    - username
+    type: object
+  model.UserUpdate:
+    properties:
+      address:
+        type: string
+      department_id:
+        type: integer
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+      phone:
+        type: string
+      username:
+        type: string
+    required:
+    - department_id
+    - email
+    - first_name
+    - last_name
+    - permissions
+    - username
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with username and password
+      parameters:
+      - description: Login
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/model.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Result'
+            - properties:
+                document:
+                  $ref: '#/definitions/model.LoginResult'
+              type: object
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/common.Result'
+      summary: Login system
+      tags:
+      - login
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: List User
+      parameters:
+      - description: search
+        in: query
+        name: search
+        type: string
+      - default: 50
+        description: limit
+        in: query
+        name: limit
+        type: number
+      - default: 0
+        description: skip
+        in: query
+        name: skip
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Result'
+            - properties:
+                document:
+                  $ref: '#/definitions/model.Records'
+              type: object
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/common.Result'
+      security:
+      - ApiKeyAuth: []
+      summary: List User
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: create user
+      parameters:
+      - description: Login
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/common.Result'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/common.Result'
+      security:
+      - ApiKeyAuth: []
+      summary: User Store
+      tags:
+      - user
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete Users
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/common.Result'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/common.Result'
+      security:
+      - ApiKeyAuth: []
+      summary: Users Delete
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      description: Get user detail
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Result'
+            - properties:
+                document:
+                  $ref: '#/definitions/model.UserUpdate'
+              type: object
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/common.Result'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user detail
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: update user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: number
+      - description: Login
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/common.Result'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/common.Result'
+      security:
+      - ApiKeyAuth: []
+      summary: User Update
+      tags:
+      - user
+  /users/permission:
+    get:
+      consumes:
+      - application/json
+      description: Users Permission
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Result'
+            - properties:
+                document:
+                  items:
+                    $ref: '#/definitions/model.Permission'
+                  type: array
+              type: object
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/common.Result'
+      security:
+      - ApiKeyAuth: []
+      summary: Users Permission
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
